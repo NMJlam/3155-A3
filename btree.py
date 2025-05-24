@@ -45,8 +45,8 @@ class Node:
         return len(self.subtrees) == 0 
 
     def getMedian(self) -> int: 
-        n = len(self.elements) 
-        return self.elements[n//2]
+        n = len(self.elements) - 1
+        return n//2, self.elements[n//2]
 
 
 class Btree: 
@@ -61,44 +61,43 @@ class Btree:
         Case2: Inserting into root -> breakage 
         Case3: Inserting into leaf node -> breakage 
         '''
-        curr = self.root
 
-        # inserts at that found leaf node if it has space then we dont need to balance 
-        if curr.hasSpace(): 
-            insertionPos = curr.binary_search(num)
-            curr.elements.insert(insertionPos, num)
-            return 
-        
-        # once inserted we must balance it
-        if not curr.hasSpace(): 
+        # traverse the tree and then find a place to break, return insertion point 
+        curr = self.root 
+        insertPos = 0 
 
-            median = curr.getMedian() 
+        if curr.elementsFull(): 
+            curr = self.split_root(curr)
 
-            left, right = Node(self.t), Node(self.t)
-            
-            # slice the left and right side 
-            leftElem, rightElem = curr.elements[:median-1], curr.elements[median:]
-            left.elements, right.elements = leftElem, rightElem
-            left.parent, right.parent = curr, curr
+        while not curr.isLeaf(): 
 
-            curr.subtrees.append(left)
-            curr.subtrees.append(right)
-            curr.elements = [median]
-        
-        insertionNode = self.root 
-        while not insertionNode.isLeaf():  
+            insertPos = curr.binary_search(num)
 
-            insertionPos = insertionNode.binary_search(num)
-
-            # num where are trying to insert exists -> just ignore
-            if insertionPos < len(insertionNode.elements) and insertionNode.elements[insertionPos] == num: 
+            if (insertPos<len(curr.elements) and 
+                self.elements[insertionPosition] == num): 
                 return 
 
-            insertionNode = insertionNode.subtrees[insertionPos]
+            curr = curr.subtrees[insertPos]
+        
+        insertPos = curr.binary_search(num)
+        curr.elements.insert(insertPos, num)
+    
+    def split_root(self, curr: 'Node') -> 'Node': 
+        '''
+        Return the top node that we split 
+        '''
+        left, right = Node(self.t), Node(self.t)
+        
+        medianIndex, median = curr.getMedian()
+        left.elements, right.elements = curr.elements[:medianIndex], curr.elements[medianIndex+1:]
+        #TODO: children not done yet WIP 
 
-        i = insertionNode.binary_search(num)
-        insertionNode.elements.insert(i,num)
+        curr.elements = [median]
+        
+        curr.subtrees.append(left)
+        curr.subtrees.append(right)
 
+        return curr 
 
 if __name__ == "__main__": 
 
@@ -110,8 +109,9 @@ if __name__ == "__main__":
 
     print(b.root)
 
-    for child in b.root.subtrees:
-        print(child)
+    for c in b.root.subtrees: 
+        print("hit")
+        print(c)
 
 
 
