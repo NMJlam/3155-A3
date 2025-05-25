@@ -38,9 +38,6 @@ class Node:
     def elementsFull(self) -> bool: 
         return len(self.elements) >= (2*self.t)-1
 
-    def hasSpace(self) -> bool: 
-        return len(self.elements) < (2*self.t)-1
-    
     def isLeaf(self): 
         return len(self.subtrees) == 0 
 
@@ -48,6 +45,8 @@ class Node:
         n = len(self.elements) - 1
         return n//2, self.elements[n//2]
 
+    def isRoot(self) -> bool: 
+        return self.parent == None 
 
 class Btree: 
 
@@ -62,58 +61,100 @@ class Btree:
         Case3: Inserting into leaf node -> breakage 
         '''
 
-        # traverse the tree and then find a place to break, return insertion point 
+        if self.root.elementsFull():
+            self.split(self.root)
+
         curr = self.root 
-        insertPos = 0 
 
-        if curr.elementsFull(): 
-            curr = self.split_root(curr)
-
+        # move through the b tree and determine if we need to split (pushing up split elements)
         while not curr.isLeaf(): 
-
+            
+            # traversing deeper 
             insertPos = curr.binary_search(num)
-
+            
+            # we have already inserted it so in that case we do not need to insert again 
             if (insertPos<len(curr.elements) and 
-                self.elements[insertionPosition] == num): 
+                curr.elements[insertionPosition] == num): 
                 return 
 
-            curr = curr.subtrees[insertPos]
-        
+            valid_child = curr.subtrees[insertPos]
+
+            if valid_child.elementsFull():
+                curr = self.split(valid_child)
+
+            curr = valid_child
+
+        # inserting the node at the valid position 
         insertPos = curr.binary_search(num)
         curr.elements.insert(insertPos, num)
     
-    def split_root(self, curr: 'Node') -> 'Node': 
+    def split(self, curr: 'Node') -> 'Node': 
         '''
-        Return the top node that we split 
+        Recursively split the nodes
         '''
-        left, right = Node(self.t), Node(self.t)
-        
-        medianIndex, median = curr.getMedian()
-        left.elements, right.elements = curr.elements[:medianIndex], curr.elements[medianIndex+1:]
-        #TODO: children not done yet WIP 
 
-        curr.elements = [median]
+        #NOTE: if we hit the root then we have hit the end and we cr
+        if curr.isRoot(): 
+            return self.splitting_root(curr)
         
-        curr.subtrees.append(left)
-        curr.subtrees.append(right)
+        curr = self.splitting_internal_node(curr)
+        if curr.elementsFull():
+            self.split(curr)
 
         return curr 
+
+    
+    def splitting_root(self, root: 'Node') -> None: 
+
+        # create 2 child nodes
+        left, right = Node(self.t), Node(self.t)
+        
+        # get the median and the median index because we need to slice around median 
+        medianIndex, median = root.getMedian()
+        # slice the elements based on the median 
+        left.elements, right.elements = root.elements[:medianIndex], root.elements[medianIndex+1:]
+        # make the parents of the left and right the root
+        left.parent, right.parent = root, root 
+
+        # the median is the element list 
+        root.elements = [median]
+        # the left and right are now the sub trees 
+        root.subtrees.append(left)
+        root.subtrees.append(right)
+
+        return root 
+
+    def splitting_internal_node(self, curr: 'Node') -> 'Node': 
+        
+        parent = curr.parent 
+        medianIndex, median = curr.getMedian()
+        insertPos = parent.binary_search(median)
+
+        # add median into the parent 
+        parent.elements.insert(insertPos, median)
+
+        left, right = Node(self.t), Node(self.t)
+        left.elements, right.elements = curr.elements[:medianIndex], curr.elements[medianIndex+1:]
+
+        # insert child nodes on the left and right of the parent 
+        #NOTE: make sure they are in order 
+        parent.subtrees.insert(insertPos+1, right)
+        parent.subtrees.insert(insertPos, left)
+        parent.subtrees.remove(curr)
+
+        left.parent, right.parent = parent, parent 
+
+        return curr.parent  
 
 if __name__ == "__main__": 
 
     b = Btree(2)
-    insertion = [1,2,3,4]
+    insertions = [-1,0,1,2,3,4]
 
-    for i in insertion: 
+    for i in insertions: 
         b.insert(i)
 
     print(b.root)
-
-    for c in b.root.subtrees: 
-        print("hit")
-        print(c)
-
-
-
+    print(b.root.subtrees)
 
 
