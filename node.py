@@ -32,9 +32,6 @@ class Node:
         self.keys.insert(insertion_index, num)
 
     def split_child_at(self, index:int) -> None:
-        '''
-        Splits the child at a certain in index and then propogates the answer upwards 
-        '''
 
         child =  self.children[index]
         median = (child.num_keys()) // 2 
@@ -46,10 +43,19 @@ class Node:
         self.keys.insert(index, median_element)
         self.children[index:index+1] = [left,right]
 
+    def split_new_root(self) -> None: 
+        new_node = Node([],[self])
+        new_node.split_child_at(0)
+        return new_node 
+    
+    def contains(self, num:int) -> int: # NOTE: checking the number is within in the node 
+        idx = self.search(num)
+        return idx < self.num_keys() and self.keys[idx] == num 
+
     def __repr__(self): 
-        return self.keys 
+        return f"{self.keys}"
     def __str__(self): 
-        return self.keys 
+        return f"{self.keys}"
 
 
 if __name__ == '__main__': 
@@ -57,8 +63,5 @@ if __name__ == '__main__':
     right = Node([456],[])
     
     root = Node([0], [left,right])
-
     root.split_child_at(0)
-            
-
 
