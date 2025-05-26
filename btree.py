@@ -74,13 +74,15 @@ class Btree:
             
             # we have already inserted it so in that case we do not need to insert again 
             if (insertPos<len(curr.elements) and 
-                curr.elements[insertionPosition] == num): 
+                curr.elements[insertPos] == num): 
                 return 
 
             valid_child = curr.subtrees[insertPos]
 
             if valid_child.elementsFull():
                 curr = self.split(valid_child)
+                insertPos = curr.binary_search(num)
+                valid_child = curr.subtrees[insertPos]
 
             curr = valid_child
 
@@ -93,24 +95,33 @@ class Btree:
         Recursively split the nodes
         '''
 
-        #NOTE: if we hit the root then we have hit the end and we cr
-        if curr.isRoot(): 
-            return self.splitting_root(curr)
-        
-        curr = self.splitting_internal_node(curr)
-        if curr.elementsFull():
-            self.split(curr)
+        while curr.elementsFull(): 
 
-        return curr 
+            if curr.isRoot(): 
+                curr = self.splitting_root(curr)
+                break 
 
+            parent = self.splitting_internal_node(curr)
+            curr = parent
+
+        return curr
     
     def splitting_root(self, root: 'Node') -> None: 
 
         # create 2 child nodes
         left, right = Node(self.t), Node(self.t)
-        
         # get the median and the median index because we need to slice around median 
         medianIndex, median = root.getMedian()
+
+        if not root.isLeaf(): 
+            left.subtrees = root.subtrees[:medianIndex+1]
+            right.subtrees = root.subtrees[medianIndex:]
+
+            for child in left.subtrees:
+                child.parent = left
+            for child in right.subtrees:
+                child.parent = right
+        
         # slice the elements based on the median 
         left.elements, right.elements = root.elements[:medianIndex], root.elements[medianIndex+1:]
         # make the parents of the left and right the root
@@ -119,8 +130,7 @@ class Btree:
         # the median is the element list 
         root.elements = [median]
         # the left and right are now the sub trees 
-        root.subtrees.append(left)
-        root.subtrees.append(right)
+        root.subtrees = [left, right]
 
         return root 
 
@@ -144,17 +154,27 @@ class Btree:
 
         left.parent, right.parent = parent, parent 
 
+        if not curr.isLeaf(): 
+            left.subtrees = curr.subtrees[:medianIndex+1]
+            right.subtrees = curr.subtrees[medianIndex+1]
+
+            for child in left.subtrees:
+                child.parent = left
+            for child in right.subtrees:
+                child.parent = right
+
         return curr.parent  
 
 if __name__ == "__main__": 
 
     b = Btree(2)
-    insertions = [-1,0,1,2,3,4]
+    insertions = [-1,0,1,2,3,4,5,6]
 
     for i in insertions: 
         b.insert(i)
 
     print(b.root)
     print(b.root.subtrees)
+
 
 
