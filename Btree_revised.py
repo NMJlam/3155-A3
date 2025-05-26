@@ -100,12 +100,19 @@ class BTree:
 
 if __name__ == '__main__': 
     b = BTree(2)
-    insertions = [1,2,3,4,5,6,9,10,-1,0,-2,-3,-4,-5]
+    insertions = [1,2,3,4,5,6]
 
     for i in insertions: 
         b.insert_rec(i, b.root)
 
-    print(b.search(100))
+    print(b)
+    print("predecessor")
+    print(b.root.predecessor(2))
+    print("successor")
+    print(b.root.successor(2))
+
+    
+
 
 
     

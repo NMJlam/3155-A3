@@ -52,11 +52,50 @@ class Node:
         idx = self.search(num)
         return idx < self.num_keys() and self.keys[idx] == num 
 
+    def delete(self, num:int) -> None: 
+        if self.contains(num): 
+            idx = self.search(num)
+            del self.keys[num]
+
+    def predecessor(self, num:int) -> int: 
+        #NOTE: this assumes that i is within the current node: 
+        idx = self.search(num)
+
+        if idx >= self.num_keys() or self.keys[idx] != num:
+            return None 
+
+        if idx < self.num_children(): 
+            curr = self.children[idx]
+
+            while not curr.is_leaf(): 
+                curr = curr.children[-1]
+            return curr.keys[-1] if curr.keys else None 
+
+        return None 
+
+
+    def successor(self, num:int) -> int: 
+        # NOTE: this assumes that i is within the current node: 
+        idx = self.search(num)
+
+        if idx >= self.num_keys() or self.keys[idx] != num: 
+            return None 
+
+        if idx + 1 < self.num_children(): 
+            curr = self.children[idx+1]
+            while not curr.is_leaf():
+                curr = curr.children[0]
+            return curr.keys[0] if curr.keys else None 
+
+        return None 
+
+    def merge(self, i): 
+        pass 
+
     def __repr__(self): 
         return f"{self.keys}"
     def __str__(self): 
         return f"{self.keys}"
-
 
 if __name__ == '__main__': 
     left = Node([123],[])
