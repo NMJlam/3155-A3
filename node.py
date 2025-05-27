@@ -55,10 +55,11 @@ class Node:
     def delete(self, num:int) -> None: 
         if self.contains(num): 
             idx = self.search(num)
-            del self.keys[num]
+            del self.keys[idx]
+
 
     def predecessor(self, num:int) -> int: 
-        #NOTE: this assumes that i is within the current node: 
+        #NOTE: case 2ab assumes that the left and the right have enough nodes 
         idx = self.search(num)
 
         if idx >= self.num_keys() or self.keys[idx] != num:
@@ -69,13 +70,16 @@ class Node:
 
             while not curr.is_leaf(): 
                 curr = curr.children[-1]
-            return curr.keys[-1] if curr.keys else None 
+
+            predecessor = curr.keys[-1]
+            del curr.keys[-1]
+            return predecessor 
 
         return None 
 
 
     def successor(self, num:int) -> int: 
-        # NOTE: this assumes that i is within the current node: 
+        # NOTE: case 2ab assumes that the left and the right have enough nodes  
         idx = self.search(num)
 
         if idx >= self.num_keys() or self.keys[idx] != num: 
@@ -85,12 +89,24 @@ class Node:
             curr = self.children[idx+1]
             while not curr.is_leaf():
                 curr = curr.children[0]
-            return curr.keys[0] if curr.keys else None 
+
+            successor = curr.keys[0]
+            del curr.keys[0]
+            return successor 
 
         return None 
 
     def merge(self, i): 
-        pass 
+
+        left, right = self.children[i:i+2]
+
+        left.keys.extend(right.keys)
+
+        if not right.is_leaf():
+            left.children.extend(right.children)
+
+        del self.keys[i]
+        del self.children[i]
 
     def __repr__(self): 
         return f"{self.keys}"

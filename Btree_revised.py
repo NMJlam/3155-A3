@@ -65,7 +65,33 @@ class BTree:
         return (curr, idx) if curr.contains(num) else None
 
     def delete(self, num:int) -> int: 
-        pass 
+        # NOTE: Case 1 traverse down to a leaf and delete 
+
+        curr = self.root 
+
+        while not curr.is_leaf(): 
+
+            idx = curr.search(num)
+
+            # NOTE: here we find out if num in internal nodes
+            if curr.contains(num): 
+
+                # get the left and the right nodes 
+                left, right = curr.children[idx:idx+2]
+
+                if left.num_keys() > self.lower: 
+                    curr.keys[idx] = curr.predecessor(num)
+                    return 
+                elif left.num_keys() > self.lower: 
+                    curr.keys[idx] = curr.successor(num)
+                    return 
+                else: 
+                    curr.merge(idx)
+                    return 
+
+            curr = curr.children[idx]
+
+        curr.delete(num)
 
 
     def breadth_first_search(self) -> Dict[int, List[int]]: 
@@ -100,16 +126,18 @@ class BTree:
 
 if __name__ == '__main__': 
     b = BTree(2)
-    insertions = [1,2,3,4,5,6]
+    insertions = [42, 7, 93, 58, 21, 84, 36, 19, 67, 10]
 
     for i in insertions: 
         b.insert_rec(i, b.root)
 
     print(b)
-    print("predecessor")
-    print(b.root.predecessor(2))
-    print("successor")
-    print(b.root.successor(2))
+
+    b.delete(42)
+    b.delete(7)
+    b.delete(21)
+
+    print(b)
 
     
 
