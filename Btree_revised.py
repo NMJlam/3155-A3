@@ -1,7 +1,7 @@
 from node import Node 
-from typing import *
 from queue import Queue 
 from collections import defaultdict 
+from typing import Tuple, List, Dict
 
 class BTree:
 
@@ -54,17 +54,18 @@ class BTree:
 
         self.insert_rec(num, curr.children[idx])
 
-    def search(self, num:int) -> int: 
+    def search(self, num:int) -> Tuple['Node', int] | None: 
 
         curr = self.root 
+        idx = 0 
 
         while not curr.contains(num) and not curr.is_leaf(): 
             idx = curr.search(num)
             curr = curr.children[idx]
 
-        return (curr, idx) if curr.contains(num) else None
+        return (curr, idx) if curr.contains(num) else None 
 
-    def delete(self, num:int) -> int: 
+    def delete(self, num:int) -> None:  
         # NOTE: Case 1 traverse down to a leaf and delete 
 
         curr = self.root 
@@ -76,28 +77,37 @@ class BTree:
             # NOTE: here we find out if num in internal nodes
             if curr.contains(num): 
 
-                # get the left and the right nodes 
                 left, right = curr.children[idx:idx+2]
 
-                if left.num_keys() > self.lower: 
-                    curr.keys[idx] = curr.predecessor(num)
-                    return 
-                elif left.num_keys() > self.lower: 
-                    curr.keys[idx] = curr.successor(num)
-                    return 
-                else: 
-                    curr.merge(idx)
-                    return 
+                if left.num_keys() > self.lower:  
+                    #NOTE: find predecessor 
+                    pred = curr.predecessor(num) 
+                    if pred: 
+                        curr.keys[idx] = pred
+                        num = pred
 
-            curr = curr.children[idx]
+                elif right.num_keys() > self.lower: 
+                    # NOTE: find successor
+                    succ = curr.successor(num)
+                    if succ: 
+                        curr.keys[idx] = succ  
+                        num = succ 
+                        idx += 1 
+                else: 
+                    #NOTE: merge the LHS and the RHS 
+                    curr.merge(idx)
+
+            curr = curr.children[idx] 
 
         curr.delete(num)
 
+    def rotate(self, idx: int, curr: 'Node') -> None: 
+        pass 
 
     def breadth_first_search(self) -> Dict[int, List[int]]: 
 
         if not self.root: 
-            return []
+            return {} 
 
         layers = defaultdict(list)
         level = 0 
@@ -126,24 +136,19 @@ class BTree:
 
 if __name__ == '__main__': 
     b = BTree(2)
-    insertions = [42, 7, 93, 58, 21, 84, 36, 19, 67, 10]
+    insertions = [42, 7, 93, 58, 21, 84, 36, 19, 67, 10] 
+
 
     for i in insertions: 
         b.insert_rec(i, b.root)
 
     print(b)
-
     b.delete(42)
-    b.delete(7)
-    b.delete(21)
-
+    b.delete(93)
+    b.insert(22)
     print(b)
-
-    
-
-
-
-    
-
-
+    b.delete(67)
+    print(b)
+    b.delete(36)
+    print(b)
 

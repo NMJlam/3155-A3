@@ -1,4 +1,4 @@
-from typing import * 
+from typing import List
 
 class Node: 
 
@@ -43,12 +43,12 @@ class Node:
         self.keys.insert(index, median_element)
         self.children[index:index+1] = [left,right]
 
-    def split_new_root(self) -> None: 
+    def split_new_root(self): 
         new_node = Node([],[self])
         new_node.split_child_at(0)
         return new_node 
     
-    def contains(self, num:int) -> int: # NOTE: checking the number is within in the node 
+    def contains(self, num:int) -> bool: # NOTE: checking the number is within in the node 
         idx = self.search(num)
         return idx < self.num_keys() and self.keys[idx] == num 
 
@@ -58,7 +58,7 @@ class Node:
             del self.keys[idx]
 
 
-    def predecessor(self, num:int) -> int: 
+    def predecessor(self, num:int) -> int | None: 
         #NOTE: case 2ab assumes that the left and the right have enough nodes 
         idx = self.search(num)
 
@@ -71,14 +71,12 @@ class Node:
             while not curr.is_leaf(): 
                 curr = curr.children[-1]
 
-            predecessor = curr.keys[-1]
-            del curr.keys[-1]
-            return predecessor 
+            return curr.keys[-1] 
 
         return None 
 
 
-    def successor(self, num:int) -> int: 
+    def successor(self, num:int)-> int | None: 
         # NOTE: case 2ab assumes that the left and the right have enough nodes  
         idx = self.search(num)
 
@@ -89,24 +87,59 @@ class Node:
             curr = self.children[idx+1]
             while not curr.is_leaf():
                 curr = curr.children[0]
-
-            successor = curr.keys[0]
-            del curr.keys[0]
-            return successor 
+            return curr.keys[0]
 
         return None 
 
     def merge(self, i): 
 
+        median = self.keys[i]
         left, right = self.children[i:i+2]
 
+        left.keys.append(median)
         left.keys.extend(right.keys)
 
         if not right.is_leaf():
             left.children.extend(right.children)
 
         del self.keys[i]
-        del self.children[i]
+        del self.children[i+1]
+
+    def merge_children(self, i:int)->None: 
+        # NOTE: case 3b inserting the root into the children 
+
+        median = self.keys[i]
+        left, right = self.children[i:i+2]
+
+        left.keys.append(median)
+        left.keys.extend(right.keys)
+
+        if not right.is_leaf(): 
+            left.children.extend(right.children)
+
+    def rotate_left(self, num:int) -> None : 
+
+        idx = self.search(num)
+        left, _ = self.children[idx:idx+2]
+        succ = self.successor(num)
+        parent = self.keys[idx]
+
+        if succ: 
+            self.keys[idx] = succ 
+
+        left.keys[-1] = parent 
+
+    def rotate_right(self, num:int): 
+
+        idx = self.search(num)
+        _, right = self.children[idx:idx+2]
+        pred = self.predecessor(num)
+        parent = self.keys[idx]
+
+        if pred:  
+            self.keys[idx] = pred 
+
+        right.keys[0] = parent 
 
     def __repr__(self): 
         return f"{self.keys}"
