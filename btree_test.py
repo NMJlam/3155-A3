@@ -1,6 +1,47 @@
 import random
 import unittest 
-from btree import Btree
+from Btree_revised import BTree 
+from node import Node 
+
+def test_count(root: 'Node') -> bool: 
+
+    if root.is_leaf(): 
+        return len(root.keys) == root.count 
+    
+    count = 0 
+
+    for child in root.children: 
+        test_count(child)
+        count += child.count 
+
+    return count + root.num_keys() == root.count
+
+class test_bTree(unittest.TestCase):
+
+    def test_count1000(self): 
+        b = BTree(2)
+
+        random.seed(88)
+        insertions = random.sample( range(0,10000), 1000)
+
+        for i in insertions: 
+            b.insert_rec(i, b.root)
+
+        random.shuffle(insertions)
+
+        count = 0 
+        for i in insertions: 
+            b.delete(i)
+            result = test_count(b.root)
+            if result == True: 
+                count += 1 
+
+        self.assertEqual(count, 1000)
+
+if __name__ == "__main__": 
+    unittest.main()
+
+        
 
 
 

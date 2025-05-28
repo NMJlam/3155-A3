@@ -2,7 +2,6 @@ from node import Node
 from queue import Queue 
 from collections import defaultdict 
 from typing import Tuple, List, Dict
-import random 
 
 class BTree:
 
@@ -13,7 +12,6 @@ class BTree:
         self.lower = t-1 
 
     def insert_rec(self, num:int, curr: 'Node') -> None:    
-
 
         if self.root.num_keys() == self.upper: 
             self.root = self.root.split_new_root()
@@ -146,33 +144,5 @@ class BTree:
             output += f"Level {level}: {keys}\n"
         return output
 
-def test_count(root: 'Node') -> bool: 
-
-    if root.is_leaf(): 
-        return len(root.keys) == root.count 
-    
-    count = 0 
-
-    for child in root.children: 
-        test_count(child)
-        count += child.count 
-
-    return count + root.num_keys() == root.count
-
 if __name__ == '__main__': 
-    b = BTree(2)
-
-    random.seed(88)
-    insertions = random.sample( range(0,100), 10)
-
-    for i in insertions: 
-        b.insert_rec(i, b.root)
-
-    print(b)
-
-    b.delete(1)
-    b.delete(42)
-
-    print(test_count(b.root))
-
-    print(b)
+    pass 
