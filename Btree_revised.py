@@ -2,6 +2,7 @@ from node import Node
 from queue import Queue 
 from collections import defaultdict 
 from typing import Tuple, List, Dict
+import random 
 
 class BTree:
 
@@ -97,12 +98,34 @@ class BTree:
                     #NOTE: merge the LHS and the RHS 
                     curr.merge(idx)
 
+
+            child = curr.children[idx]
+            if child.num_keys() == self.lower: 
+
+                #TODO: refactor 
+                
+                sibling_lhs = curr.children[idx-1] if idx-1 >= 0 else None 
+                sibling_rhs = curr.children[idx+1] if idx+1 < curr.num_children() else None
+
+                # NOTE: 3b 
+                if (sibling_lhs and sibling_lhs.num_keys() == self.lower): 
+                    curr.merge(idx-1)
+                    idx -= 1 
+                elif (sibling_rhs and sibling_rhs.num_keys() == self.lower):
+                    curr.merge(idx)
+
+                #NOTE: 3a
+                elif sibling_rhs and sibling_rhs.num_keys() > self.lower: 
+                    curr.right_rotation(idx)
+                elif sibling_lhs and sibling_lhs.num_keys() > self.lower: 
+                    curr.left_rotation(idx)
+
             curr = curr.children[idx] 
 
         curr.delete(num)
 
-    def rotate(self, idx: int, curr: 'Node') -> None: 
-        pass 
+        if self.root.num_keys() == 0 and not self.root.is_leaf(): 
+            self.root = self.root.children[0]
 
     def breadth_first_search(self) -> Dict[int, List[int]]: 
 
@@ -136,19 +159,23 @@ class BTree:
 
 if __name__ == '__main__': 
     b = BTree(2)
-    insertions = [42, 7, 93, 58, 21, 84, 36, 19, 67, 10] 
 
+    random.seed(88)
+    insertions = random.sample( range(0,100), 20)
 
     for i in insertions: 
         b.insert_rec(i, b.root)
+    
 
+    b.delete(1)
+    b.delete(15)
+    b.delete(17)
+    b.delete(89)
+    b.delete(88)
+    b.delete(98)
+    b.delete(56)
     print(b)
-    b.delete(42)
-    b.delete(93)
-    b.insert(22)
-    print(b)
+    b.delete(50)
     b.delete(67)
-    print(b)
-    b.delete(36)
     print(b)
 

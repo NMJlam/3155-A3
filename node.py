@@ -105,41 +105,41 @@ class Node:
         del self.keys[i]
         del self.children[i+1]
 
-    def merge_children(self, i:int)->None: 
-        # NOTE: case 3b inserting the root into the children 
+    def right_rotation(self, idx: int) -> None: 
+        #NOTE: borrowing from the RHS 
 
-        median = self.keys[i]
-        left, right = self.children[i:i+2]
+        child = self.children[idx]
+        rhs_sibling = self.children[idx+1]
 
-        left.keys.append(median)
-        left.keys.extend(right.keys)
+        median = self.keys[idx]
+        immediate_successor = rhs_sibling.keys[0]
 
-        if not right.is_leaf(): 
-            left.children.extend(right.children)
+        child.keys.append(median) # append the median to the RHS of child 
 
-    def rotate_left(self, num:int) -> None : 
+        self.keys[idx] = immediate_successor
+        del rhs_sibling.keys[0] # removing the immediate_successor
 
-        idx = self.search(num)
-        left, _ = self.children[idx:idx+2]
-        succ = self.successor(num)
-        parent = self.keys[idx]
+        if not rhs_sibling.is_leaf(): 
+            child.children.append(rhs_sibling.children[0])
+            del rhs_sibling.children[0] # remove the children from the RHS 
 
-        if succ: 
-            self.keys[idx] = succ 
+    def left_rotation(self, idx:int) -> None:
 
-        left.keys[-1] = parent 
+        child = self.children[idx]
+        lhs_sibling = self.children[idx-1]
 
-    def rotate_right(self, num:int): 
+        median = self.keys[idx-1]
+        immediate_predecessor = lhs_sibling.keys[-1]
 
-        idx = self.search(num)
-        _, right = self.children[idx:idx+2]
-        pred = self.predecessor(num)
-        parent = self.keys[idx]
+        child.keys.insert(0, median)
 
-        if pred:  
-            self.keys[idx] = pred 
+        self.keys[idx-1] = immediate_predecessor 
+        del lhs_sibling.keys[-1] # remove the predecessor
 
-        right.keys[0] = parent 
+        if not lhs_sibling.is_leaf(): 
+            child.children.insert(0, lhs_sibling.children[-1])
+            del lhs_sibling.children[-1]
+
 
     def __repr__(self): 
         return f"{self.keys}"
