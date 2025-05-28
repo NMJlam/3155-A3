@@ -5,6 +5,11 @@ class Node:
     def __init__(self, keys: List[int], children: List['Node']) -> None: 
         self.keys = keys 
         self.children = children 
+        self.count = 0
+
+        if children: 
+            self.recalculate_count()
+        
 
     def num_keys(self) -> int: 
         return len(self.keys)
@@ -14,6 +19,12 @@ class Node:
 
     def is_leaf(self) -> bool: 
         return self.num_children() == 0 
+    
+    def recalculate_count(self) -> None: 
+        if self.is_leaf(): 
+            self.count = self.num_keys()
+        else:
+            self.count = self.num_keys() + sum(child.count for child in self.children)
 
     def search(self, target:int) -> int: 
         lo, hi = 0, self.num_keys() - 1
@@ -42,6 +53,10 @@ class Node:
 
         self.keys.insert(index, median_element)
         self.children[index:index+1] = [left,right]
+
+        left.recalculate_count()
+        right.recalculate_count()
+        self.recalculate_count()
 
     def split_new_root(self): 
         new_node = Node([],[self])
@@ -105,6 +120,11 @@ class Node:
         del self.keys[i]
         del self.children[i+1]
 
+        right.recalculate_count()
+        left.recalculate_count()
+        self.recalculate_count()
+        
+
     def right_rotation(self, idx: int) -> None: 
         #NOTE: borrowing from the RHS 
 
@@ -123,6 +143,10 @@ class Node:
             child.children.append(rhs_sibling.children[0])
             del rhs_sibling.children[0] # remove the children from the RHS 
 
+        child.recalculate_count()
+        rhs_sibling.recalculate_count()
+        self.recalculate_count()
+
     def left_rotation(self, idx:int) -> None:
 
         child = self.children[idx]
@@ -140,11 +164,14 @@ class Node:
             child.children.insert(0, lhs_sibling.children[-1])
             del lhs_sibling.children[-1]
 
+        child.recalculate_count()
+        lhs_sibling.recalculate_count()
+        self.recalculate_count()
 
     def __repr__(self): 
-        return f"{self.keys}"
+        return f"({self.count} | {self.keys})"
     def __str__(self): 
-        return f"{self.keys}"
+        return f"({self.count} | {self.keys})"
 
 if __name__ == '__main__': 
     left = Node([123],[])

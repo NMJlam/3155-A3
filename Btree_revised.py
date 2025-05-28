@@ -12,38 +12,17 @@ class BTree:
         self.upper = 2*t - 1
         self.lower = t-1 
 
-    def insert(self, num:int) -> None: 
+    def insert_rec(self, num:int, curr: 'Node') -> None:    
 
-        if self.root.num_keys() >= self.upper: 
-            self.root = self.root.split_new_root()
-
-        curr = self.root 
-
-        while not curr.is_leaf(): 
-
-            idx = curr.search(num)
-            child = curr.children[idx]
-
-            if child.num_keys() >= self.upper: 
-
-                curr.split_child_at(idx)
-
-                if curr.keys[idx] < num:
-                    idx += 1
-
-            curr = curr.children[idx]
-
-        curr.insert(num)
-
-    def insert_rec(self, num:int, curr: 'Node') -> None: 
 
         if self.root.num_keys() == self.upper: 
             self.root = self.root.split_new_root()
 
         if curr.is_leaf():
             curr.insert(num)
+            curr.recalculate_count()
             return 
-        
+
         idx = curr.search(num)
         child = curr.children[idx]
 
@@ -54,8 +33,9 @@ class BTree:
                 idx += 1 
 
         self.insert_rec(num, curr.children[idx])
+        curr.recalculate_count()
 
-    def search(self, num:int) -> Tuple['Node', int] | None: 
+    def search(self, num:int) -> Tuple['Node', int] | Tuple[None, None]: 
 
         curr = self.root 
         idx = 0 
@@ -64,16 +44,23 @@ class BTree:
             idx = curr.search(num)
             curr = curr.children[idx]
 
-        return (curr, idx) if curr.contains(num) else None 
+        return (curr, idx) if curr.contains(num) else (None, None)
 
     def delete(self, num:int) -> None:  
         # NOTE: Case 1 traverse down to a leaf and delete 
 
+        node, idx = self.search(num)
+
+        if not node: 
+            return 
+
         curr = self.root 
+        path = []
 
         while not curr.is_leaf(): 
 
             idx = curr.search(num)
+            path.append(curr)
 
             # NOTE: here we find out if num in internal nodes
             if curr.contains(num): 
@@ -102,8 +89,6 @@ class BTree:
             child = curr.children[idx]
             if child.num_keys() == self.lower: 
 
-                #TODO: refactor 
-                
                 sibling_lhs = curr.children[idx-1] if idx-1 >= 0 else None 
                 sibling_rhs = curr.children[idx+1] if idx+1 < curr.num_children() else None
 
@@ -123,6 +108,10 @@ class BTree:
             curr = curr.children[idx] 
 
         curr.delete(num)
+        path.append(curr)
+
+        for node in reversed(path): 
+            node.recalculate_count()
 
         if self.root.num_keys() == 0 and not self.root.is_leaf(): 
             self.root = self.root.children[0]
@@ -144,7 +133,7 @@ class BTree:
             for child in node.children:
                 queue.put([level+1, child])
 
-            layers[level].append(node.keys)
+            layers[level].append(node)
 
         return layers 
 
@@ -157,25 +146,33 @@ class BTree:
             output += f"Level {level}: {keys}\n"
         return output
 
+def test_count(root: 'Node') -> bool: 
+
+    if root.is_leaf(): 
+        return len(root.keys) == root.count 
+    
+    count = 0 
+
+    for child in root.children: 
+        test_count(child)
+        count += child.count 
+
+    return count + root.num_keys() == root.count
+
 if __name__ == '__main__': 
     b = BTree(2)
 
     random.seed(88)
-    insertions = random.sample( range(0,100), 20)
+    insertions = random.sample( range(0,100), 10)
 
     for i in insertions: 
         b.insert_rec(i, b.root)
-    
+
+    print(b)
 
     b.delete(1)
-    b.delete(15)
-    b.delete(17)
-    b.delete(89)
-    b.delete(88)
-    b.delete(98)
-    b.delete(56)
-    print(b)
-    b.delete(50)
-    b.delete(67)
-    print(b)
+    b.delete(42)
 
+    print(test_count(b.root))
+
+    print(b)
