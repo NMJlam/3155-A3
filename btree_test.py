@@ -25,7 +25,7 @@ class test_bTree(unittest.TestCase):
         insertions = random.sample( range(0,10000), 1000)
 
         for i in insertions: 
-            b.insert_rec(i, b.root)
+            b.insert(i, b.root)
 
         random.shuffle(insertions)
 
@@ -47,7 +47,7 @@ class test_bTree(unittest.TestCase):
         insertions = random.sample(range(0,1000000000), 10000)
 
         for i in insertions: 
-            b.insert_rec(i, b.root)
+            b.insert(i, b.root)
 
         random.shuffle(insertions)
 
