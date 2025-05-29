@@ -38,6 +38,30 @@ class test_bTree(unittest.TestCase):
 
         self.assertEqual(count, 1000)
 
+    def test_count10000(self): 
+
+        b = BTree(11)
+
+        random.seed(100)
+
+        insertions = random.sample(range(0,1000000000), 10000)
+
+        for i in insertions: 
+            b.insert_rec(i, b.root)
+
+        random.shuffle(insertions)
+
+        count = 0 
+        for i in insertions: 
+            b.delete(i)
+            res = test_count(b.root)
+            if res == True: 
+                count += 1 
+
+        self.assertEqual(count, 10000)
+
+
+
 if __name__ == "__main__": 
     unittest.main()
 

@@ -1,3 +1,4 @@
+import random 
 from node import Node 
 from queue import Queue 
 from collections import defaultdict 
@@ -45,7 +46,6 @@ class BTree:
         return (curr, idx) if curr.contains(num) else (None, None)
 
     def delete(self, num:int) -> None:  
-        # NOTE: Case 1 traverse down to a leaf and delete 
 
         node, idx = self.search(num)
 
@@ -145,4 +145,15 @@ class BTree:
         return output
 
 if __name__ == '__main__': 
-    pass 
+    random.seed(88)
+    insertions =  random.sample(range(0,100), 10)
+
+    c = BTree(3)
+
+    for i in insertions: 
+        c.insert_rec(i, c.root)
+
+    print(c)
+
+
+    
