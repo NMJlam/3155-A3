@@ -12,13 +12,17 @@ class BTree:
         self.upper = 2*t - 1
         self.lower = t-1 
 
-    def insert(self, num:int, curr: 'Node') -> None:    
+    def insert(self, num:int) -> None:    
 
         if self.root.num_keys() == self.upper: 
             self.root = self.root.split_new_root()
 
+        self._insert_loop(num, self.root)
+
+    def _insert_loop(self, num: int, curr: 'Node') -> None: 
+
         if curr.is_leaf():
-            curr.insert(num)
+            curr.insert_node(num)
             curr.recalculate_count()
             return 
 
@@ -31,7 +35,7 @@ class BTree:
             if curr.keys[idx] < num:
                 idx += 1 
 
-        self.insert(num, curr.children[idx])
+        self._insert_loop(num, curr.children[idx])
         curr.recalculate_count()
 
     def search(self, num:int) -> Tuple['Node', int] | Tuple[None, None]: 
@@ -148,12 +152,12 @@ if __name__ == '__main__':
     random.seed(88)
     insertions =  random.sample(range(0,100), 10)
 
+    print(insertions)
+
     c = BTree(3)
 
     for i in insertions: 
-        c.insert(i, c.root)
+        c.insert(i)
+        print(i)
 
     print(c)
-
-
-    

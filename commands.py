@@ -10,7 +10,7 @@ class Commands(BTree):
 
     def insertKeys(self, keys_to_insert: List[int]) -> None: 
         for key in keys_to_insert:
-            self.insert(key, self.root)
+            self.insert(key)
 
     def deleteKeys(self, keys_to_delete: List[int]) -> None: 
         for key in keys_to_delete:
@@ -60,7 +60,6 @@ class Commands(BTree):
                     current_rank += node.children[i].count
             
             if idx < node.num_keys() and node.keys[idx] == num:
-                # Add the number of keys to the left in current node
                 return current_rank + idx
             
             if node.is_leaf():
@@ -120,7 +119,7 @@ class Commands(BTree):
                 r += 1 
                 s //= 2 
 
-            for _ in range(40): 
+            for _ in range(10): 
 
                 a = random.randrange(2, n-1)
                 x = pow(a,s,n)

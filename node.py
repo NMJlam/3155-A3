@@ -38,7 +38,7 @@ class Node:
                 return mid 
         return lo 
     
-    def insert(self, num:int) -> None: 
+    def insert_node(self, num:int) -> None: 
         insertion_index = self.search(num)
         self.keys.insert(insertion_index, num)
 
