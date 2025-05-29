@@ -3,23 +3,26 @@ from Btree_revised import BTree
 from typing import List
 from node import Node 
 
-class commands(BTree): 
+class Commands(BTree): 
 
     def __init__(self, t): 
         super().__init__(t)
 
-    def insert_keys(self, keys_to_insert: List[int]) -> None: 
+    def insertKeys(self, keys_to_insert: List[int]) -> None: 
         for key in keys_to_insert:
             self.insert_rec(key, self.root)
 
-    def delete_keys(self, keys_to_delete: List[int]) -> None: 
+    def deleteKeys(self, keys_to_delete: List[int]) -> None: 
         for key in keys_to_delete:
             self.delete(key)
     
-    def select(self, num:int) -> int: 
-        pass 
+    def select(self, n:int) -> int: 
+        
+        def kth_smallest(root: 'Node', n:int) -> int | None: 
+            pass 
 
-    def rank(self, num: int):
+
+    def rank(self, num:int)-> int:
         
         def rec_search(root: 'Node', depth: int) -> int | None: 
 
@@ -46,8 +49,8 @@ if __name__ == '__main__':
     random.seed(88)
     insertions =  random.sample(range(0,100), 10)
 
-    c = commands(3)
-    c.insert_keys(insertions)
+    c = Commands(3)
+    c.insertKeys(insertions)
     print(c)
     print(c.rank(24))
 
