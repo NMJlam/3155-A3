@@ -15,67 +15,65 @@ class Commands(BTree):
     def deleteKeys(self, keys_to_delete: List[int]) -> None: 
         for key in keys_to_delete:
             self.delete(key)
-    
+   
     def select(self, n:int) -> int: 
-        
-        def kth_smallest(root: 'Node', k:int) -> int | None: 
 
-            if root is None or k<0 or k >= root.count: 
-                return None 
-
-            current_pos = 0 
-
-            for i in range(root.num_keys()): 
-
-                if not root.is_leaf(): 
-                    left_count = root.children[i].count 
-
-                    if k < current_pos + left_count:
-                        return kth_smallest(root.children[i], k-current_pos)
-
-                    current_pos += left_count
-
-                if k == current_pos: 
-                    return root.keys[i]
-
-                current_pos += 1 
-
-            if not root.is_leaf() and current_pos <= k < root.count: 
-                return kth_smallest(root.children[-1], k-current_pos)
+        def kth_smallest(root: 'Node', k: int) -> int | None:
+            if root is None or k < 0 or k >= root.count:
+                return None
             
-            return None 
+            for i in range(root.num_keys()):
+                if not root.is_leaf() and i < root.num_children():
+                    left_count = root.children[i].count
+                    
+                    if k < left_count:
+                        return kth_smallest(root.children[i], k)
+                    
+                    k -= left_count
+                
+                if k == 0:
+                    return root.keys[i]
+                
+                k -= 1
+            
+            if not root.is_leaf() and root.num_children() > root.num_keys():
+                return kth_smallest(root.children[-1], k)
+            
+            return None
 
         res = kth_smallest(self.root, n-1) 
         return res if res else -1 
 
     def rank(self, num:int)-> int:
-        
+
         def find_rank(node: 'Node', num: int, accumulated_rank: int) -> int:
-            
             idx = node.search(num)
             
             current_rank = accumulated_rank
+            
             if not node.is_leaf():
                 for i in range(idx):
                     current_rank += node.children[i].count
             
             if idx < node.num_keys() and node.keys[idx] == num:
+                if not node.is_leaf() and idx < node.num_children():
+                    current_rank += node.children[idx].count
                 return current_rank + idx
             
             if node.is_leaf():
                 return -1
             
-            keys_less_than_num = min(idx, node.num_keys())
-            current_rank += keys_less_than_num
+            current_rank += idx
             
             if idx < node.num_children():
                 return find_rank(node.children[idx], num, current_rank)
             
-            return -1
+            return -1        
 
         res = find_rank(self.root, num, 0)
-        return res + 1 if res != -1 else -1 
-    
+        result = res + 1 if res != -1 else -1
+        return result 
+        
     def keysInRange(self, lower_bound:int, upper_bound:int) -> List[int]:
 
         def traverse(curr: 'Node', lower_bound: int, upper_bound: int, res: List[int])-> None:  
@@ -107,7 +105,7 @@ class Commands(BTree):
 
         def miller_rabin(n): 
             if n < 2: 
-                return True 
+                return False 
             if n == 2 or n ==3: 
                 return True 
             if n < 2 or n % 2 ==0: 

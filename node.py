@@ -6,9 +6,7 @@ class Node:
         self.keys = keys 
         self.children = children 
         self.count = 0
-
-        if children: 
-            self.recalculate_count()
+        self.recalculate_count()
         
 
     def num_keys(self) -> int: 
