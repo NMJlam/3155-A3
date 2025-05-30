@@ -171,10 +171,3 @@ class Node:
     def __str__(self): 
         return f"({self.count} | {self.keys})"
 
-if __name__ == '__main__': 
-    left = Node([123],[])
-    right = Node([456],[])
-    
-    root = Node([0], [left,right])
-    root.split_child_at(0)
-

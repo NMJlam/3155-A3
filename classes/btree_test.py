@@ -1,7 +1,7 @@
 import random
 import unittest 
-from Btree_revised import BTree 
-from node import Node 
+from classes.Btree_revised import BTree 
+from classes.node import Node 
 
 def test_count(root: 'Node') -> bool: 
 

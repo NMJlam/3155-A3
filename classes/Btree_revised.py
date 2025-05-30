@@ -1,5 +1,5 @@
 import random 
-from node import Node 
+from classes.node import Node 
 from queue import Queue 
 from collections import defaultdict 
 from typing import Tuple, List, Dict
@@ -148,16 +148,3 @@ class BTree:
             output += f"Level {level}: {keys}\n"
         return output
 
-if __name__ == '__main__': 
-    random.seed(88)
-    insertions =  random.sample(range(0,100), 10)
-
-    print(insertions)
-
-    c = BTree(3)
-
-    for i in insertions: 
-        c.insert(i)
-        print(i)
-
-    print(c)

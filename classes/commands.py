@@ -1,7 +1,7 @@
 import random 
-from Btree_revised import BTree
+from classes.Btree_revised import BTree
 from typing import List
-from node import Node 
+from classes.node import Node 
 
 class Commands(BTree): 
 
